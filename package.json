@@ -1,5 +1,11 @@
 {
+  "name": "snake",
+  "scripts": {
+    "start": "tsc --w & node-sass --watch src/scss -o public/css"
+  },
   "dependencies": {
-    "tsc": "^2.0.4"
+    "node-sass": "^7.0.1",
+    "tsc": "^2.0.4",
+    "typescript": "^4.6.2"
   }
 }

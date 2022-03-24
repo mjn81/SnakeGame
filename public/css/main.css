@@ -1,17 +1,72 @@
-*, *::after, *::before {
+@font-face {
+  font-family: "game";
+  src: url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;800&display=swap"); }
+
+*,
+*::after,
+*::before {
   margin: 0;
   padding: 0;
   box-sizing: border-box; }
 
-.wrapper {
-  height: 100vh;
-  width: 100vw;
+button:focus {
+  outline: 0; }
+
+html,
+body {
+  height: 100%;
+  font-family: "Poppins", sans-serif;
+  color: #6e7888; }
+
+body {
+  background-color: #222738;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center; }
-  .wrapper h1 {
-    text-align: center;
-    font-size: 4rem; }
+  body .author {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase; }
+    body .author span {
+      margin-left: 1rem; }
+
+.wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center; }
+  .wrapper > *:not(:last-child) {
+    margin-right: 20px; }
+  .wrapper #reset {
+    cursor: pointer;
+    transform: rotate(-90deg);
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 2.5rem;
+    color: #222738;
+    background-color: #6e7888;
+    transition: background-color 0.3s ease-in-out; }
+    .wrapper #reset:hover {
+      background-color: #4cffd7; }
+  .wrapper .score-board {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column wrap; }
+    .wrapper .score-board span {
+      display: block;
+      transform: rotate(-90deg);
+      text-transform: uppercase;
+      font-size: 1.3rem; }
+    .wrapper .score-board h2 {
+      margin-top: 2.5rem;
+      font-size: 2.5rem;
+      font-weight: bold; }
   .wrapper #canvas {
-    box-shadow: 10px 20px 50px black; }
+    background-color: #181825; }

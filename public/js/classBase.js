@@ -182,15 +182,10 @@ window.addEventListener("keydown", (e) => {
     }
 });
 resetBtn.addEventListener("click", () => {
-    try {
-        score = 0;
-        tailLength = 0;
-        isGameOver = false;
-        scoreBoard.textContent = "00";
-        requestAnimationFrame(game.drawGame);
-    }
-    catch (e) {
-        console.log(e);
-    }
+    score = 0;
+    tailLength = 0;
+    isGameOver = false;
+    scoreBoard.textContent = "00";
+    requestAnimationFrame(game.drawGame);
 });
 requestAnimationFrame(game.drawGame);

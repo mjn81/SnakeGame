@@ -221,16 +221,11 @@ window.addEventListener("keydown", (e) => {
 });
 
 resetBtn.addEventListener("click", (): void => {
-	try {
 		score = 0;
 		tailLength = 0;
 		isGameOver = false;
 		scoreBoard.textContent = "00";
 		requestAnimationFrame(game.drawGame);
-	}
-	catch (e) {
-		console.log(e);
-	}
 });
 
 requestAnimationFrame(game.drawGame);

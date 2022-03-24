@@ -12,7 +12,7 @@ var KEYS;
     KEYS["RIGHT"] = "ArrowRight";
     KEYS["SPACE"] = "Space";
 })(KEYS || (KEYS = {}));
-let velocity = [0, 0, null], deltaTime = 0, speed = 100, score = 0, tailLength = 0, isGameFinished = false;
+let velocity = [0, 0, null], deltaTime = 0, speed = 100, score = 0, tailLength = 0, isGameOver = false;
 var COLORS;
 (function (COLORS) {
     COLORS["SHEAD"] = "#FFF";
@@ -34,22 +34,44 @@ class Tile {
 class Snake {
     constructor() {
         this.changeSnakePositon = () => {
-            this.head.x += velocity[0];
-            this.head.y += velocity[1];
+            const h = this.head;
+            if (h.x >= TILE_COUNT) {
+                h.x = 0;
+            }
+            else if (h.y >= TILE_COUNT) {
+                h.y = 0;
+            }
+            else if (h.x < 0) {
+                h.x = TILE_COUNT;
+            }
+            else if (h.y < 0) {
+                h.y = TILE_COUNT;
+            }
+            h.x += velocity[0];
+            h.y += velocity[1];
+        };
+        this.checkSnakeCollection = () => {
+            const h = this.head;
+            for (let part of this.body) {
+                if (part.x == h.x && part.y == h.y) {
+                    isGameOver = true;
+                }
+            }
         };
         this.drawSnake = () => {
+            const h = this.head;
             ctx.fillStyle = COLORS.SBODY;
             for (let part of this.body) {
                 ctx.fillRect(part.x * TILE_SIZE, part.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
-            this.body.push(this.head);
-            if (this.body.length > tailLength) {
+            this.body.push(new Tile(h.x, h.y, null));
+            while (this.body.length > tailLength) {
                 this.body.shift();
             }
-            ctx.fillStyle = this.head.color;
+            ctx.fillStyle = h.color;
             ctx.shadowColor = COLORS.SHEAD_SHADOW;
             ctx.shadowBlur = SHADOW_SIZE;
-            ctx.fillRect(this.head.x * TILE_SIZE, this.head.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.fillRect(h.x * TILE_SIZE, h.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             ctx.shadowBlur = 0;
         };
         this.head = new Tile(2, 2, COLORS.SHEAD);
@@ -76,13 +98,62 @@ class Apple {
                 this.position = this.randomGenerator();
                 tailLength++;
                 score++;
+                if (score < 10) {
+                    scoreBoard.textContent = "0" + score;
+                }
+                else {
+                    scoreBoard.textContent = score.toString();
+                }
             }
         };
         this.position = this.randomGenerator();
     }
 }
 const apple = new Apple();
+class Game {
+    constructor() {
+        this.drawTileMap = () => {
+            ctx.strokeStyle = COLORS.TILE_BORDER;
+            ctx.fillStyle = COLORS.TILE;
+            for (let i = 0; i < TILE_COUNT; i++) {
+                for (let j = 0; j < TILE_COUNT; j++) {
+                    ctx.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    ctx.strokeRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+        };
+        this.drawGameOver = () => {
+            ctx.fillStyle = COLORS.TILE;
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            ctx.fillStyle = COLORS.TILE_BORDER;
+            ctx.font = "italic bold 50px Poppins";
+            ctx.fillText("Game Over", WIDTH / 2 - 145, HEIGHT / 2 + 20);
+        };
+        this.drawGame = (time) => {
+            if (time - deltaTime < speed) {
+            }
+            else {
+                if (isGameOver) {
+                    this.drawGameOver();
+                    return;
+                }
+                snake.changeSnakePositon();
+                snake.checkSnakeCollection();
+                apple.checkAppleCollision();
+                this.drawTileMap();
+                apple.drawApple();
+                snake.drawSnake();
+                deltaTime = time;
+            }
+            requestAnimationFrame(this.drawGame);
+        };
+    }
+}
+const game = new Game();
 window.addEventListener("keydown", (e) => {
+    if (isGameOver) {
+        return;
+    }
     switch (e.code) {
         case KEYS.DOWN:
             if (velocity[2] == KEYS.UP) {
@@ -110,32 +181,16 @@ window.addEventListener("keydown", (e) => {
             break;
     }
 });
-class Game {
-    constructor() {
-        this.drawTileMap = () => {
-            ctx.strokeStyle = COLORS.TILE_BORDER;
-            ctx.fillStyle = COLORS.TILE;
-            for (let i = 0; i < TILE_COUNT; i++) {
-                for (let j = 0; j < TILE_COUNT; j++) {
-                    ctx.fillRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    ctx.strokeRect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                }
-            }
-        };
-        this.drawGame = (time) => {
-            if (time - deltaTime < speed) {
-            }
-            else {
-                snake.changeSnakePositon();
-                apple.checkAppleCollision();
-                this.drawTileMap();
-                apple.drawApple();
-                snake.drawSnake();
-                deltaTime = time;
-            }
-            requestAnimationFrame(this.drawGame);
-        };
+resetBtn.addEventListener("click", () => {
+    try {
+        score = 0;
+        tailLength = 0;
+        isGameOver = false;
+        scoreBoard.textContent = "00";
+        requestAnimationFrame(game.drawGame);
     }
-}
-const game = new Game();
+    catch (e) {
+        console.log(e);
+    }
+});
 requestAnimationFrame(game.drawGame);

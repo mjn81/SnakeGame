@@ -21,7 +21,7 @@ let velocity: [number, number , KEYS] = [0, 0 , null],
 	speed: number = 100,
 	score: number = 0,
 	tailLength: number = 0,
-	isGameFinished: boolean = false;
+	isGameOver: boolean = false;
 
 
 enum COLORS {
@@ -55,27 +55,48 @@ class Snake {
 	}
 
 	changeSnakePositon = (): void => {
-		this.head.x += velocity[0];
-		this.head.y += velocity[1];
+		const h: Tile = this.head; 
+		if (h.x >= TILE_COUNT) {
+			h.x = 0;
+		} else if (h.y >= TILE_COUNT) {
+			h.y = 0;
+		}
+		else if (h.x < 0) {
+			h.x = TILE_COUNT;
+		} else if (h.y < 0) {
+			h.y = TILE_COUNT;
+		}
+		h.x += velocity[0];
+		h.y += velocity[1];
 	};
 
+	checkSnakeCollection = (): void => {
+		const h: Tile = this.head;
+		for (let part of this.body) {
+			if (part.x == h.x && part.y == h.y) {
+				isGameOver = true;
+			}
+		}
+	}
+
 	drawSnake = (): void => {
+		const h :Tile = this.head;
 		ctx.fillStyle = COLORS.SBODY;
 		for (let part of this.body) {
 			ctx.fillRect(part.x * TILE_SIZE, part.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 		}
 
-		this.body.push(this.head);
-		if (this.body.length > tailLength) {
+		this.body.push(new Tile(h.x, h.y, null));
+		while (this.body.length > tailLength) {
 			this.body.shift();
 		}
 		
-		ctx.fillStyle = this.head.color;
+		ctx.fillStyle = h.color;
 		ctx.shadowColor = COLORS.SHEAD_SHADOW;
 		ctx.shadowBlur = SHADOW_SIZE;
 		ctx.fillRect(
-			this.head.x * TILE_SIZE,
-			this.head.y * TILE_SIZE,
+			h.x * TILE_SIZE,
+			h.y * TILE_SIZE,
 			TILE_SIZE,
 			TILE_SIZE
 		);
@@ -116,39 +137,16 @@ class Apple {
 			this.position = this.randomGenerator();
 			tailLength++;
 			score++;
+			if (score < 10) {
+				scoreBoard.textContent = "0" + score;
+			} else {
+				scoreBoard.textContent = score.toString();
+			}
 		}
 	};
 }
-const apple: Apple = new Apple();
 
-window.addEventListener("keydown", (e) => {
-	switch (e.code) {
-		case KEYS.DOWN:
-			if (velocity[2] == KEYS.UP) {
-				return;
-			}
-			velocity = [0, 1 , KEYS.DOWN];
-			break;
-		case KEYS.UP:
-			if (velocity[2] == KEYS.DOWN) {
-				return;
-			}
-			velocity = [0, -1, KEYS.UP];
-			break;
-		case KEYS.RIGHT:
-			if (velocity[2] == KEYS.LEFT) {
-				return;
-			}
-			velocity = [1, 0 , KEYS.RIGHT];
-			break;
-		case KEYS.LEFT:
-			if (velocity[2] == KEYS.RIGHT) {
-				return;
-			}
-			velocity = [-1, 0 , KEYS.LEFT];
-			break;
-	}
-});
+const apple: Apple = new Apple();
 
 class Game {
 	drawTileMap = (): void => {
@@ -162,10 +160,23 @@ class Game {
 		}
 	};
 
+	drawGameOver = (): void => {
+		ctx.fillStyle = COLORS.TILE;
+		ctx.fillRect(0 , 0 , WIDTH, HEIGHT);
+		ctx.fillStyle = COLORS.TILE_BORDER;
+		ctx.font = "italic bold 50px Poppins";
+		ctx.fillText("Game Over", WIDTH / 2 - 145, HEIGHT / 2 + 20);
+	}
+
 	drawGame = (time: number): void => {
 		if (time - deltaTime < speed) {
 		} else {
+			if (isGameOver) {
+				this.drawGameOver();
+				return;	
+			}
 			snake.changeSnakePositon();
+			snake.checkSnakeCollection();
 			apple.checkAppleCollision();
 			this.drawTileMap();
 			apple.drawApple();
@@ -176,4 +187,50 @@ class Game {
 	};
 }
 const game: Game = new Game();
+
+window.addEventListener("keydown", (e) => {
+	if (isGameOver) {
+		return;
+	}
+	switch (e.code) {
+		case KEYS.DOWN:
+			if (velocity[2] == KEYS.UP) {
+				return;
+			}
+			velocity = [0, 1, KEYS.DOWN];
+			break;
+		case KEYS.UP:
+			if (velocity[2] == KEYS.DOWN) {
+				return;
+			}
+			velocity = [0, -1, KEYS.UP];
+			break;
+		case KEYS.RIGHT:
+			if (velocity[2] == KEYS.LEFT) {
+				return;
+			}
+			velocity = [1, 0, KEYS.RIGHT];
+			break;
+		case KEYS.LEFT:
+			if (velocity[2] == KEYS.RIGHT) {
+				return;
+			}
+			velocity = [-1, 0, KEYS.LEFT];
+			break;
+	}
+});
+
+resetBtn.addEventListener("click", (): void => {
+	try {
+		score = 0;
+		tailLength = 0;
+		isGameOver = false;
+		scoreBoard.textContent = "00";
+		requestAnimationFrame(game.drawGame);
+	}
+	catch (e) {
+		console.log(e);
+	}
+});
+
 requestAnimationFrame(game.drawGame);

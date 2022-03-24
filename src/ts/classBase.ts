@@ -1,5 +1,5 @@
-const scoreBoard = document.querySelector("#score");
-const resetBtn = document.querySelector("#reset");
+const scoreBoard = <HTMLElement>document.querySelector("#score");
+const resetBtn = <HTMLElement>document.querySelector("#reset");
 const canvas = <HTMLCanvasElement>document.querySelector("#canvas");
 const ctx = <CanvasRenderingContext2D>canvas.getContext("2d");
 const TILE_COUNT: number = 30,
@@ -13,10 +13,10 @@ enum KEYS {
 	DOWN = "ArrowDown",
 	LEFT = "ArrowLeft",
 	RIGHT = "ArrowRight",
-	SPACE = "Space",
+	NULL = ""
 }
 
-let velocity: [number, number , KEYS] = [0, 0 , null],
+let velocity: [number, number , KEYS] = [0, 0 , KEYS.NULL],
 	deltaTime: number = 0,
 	speed: number = 100,
 	score: number = 0,
@@ -86,7 +86,7 @@ class Snake {
 			ctx.fillRect(part.x * TILE_SIZE, part.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 		}
 
-		this.body.push(new Tile(h.x, h.y, null));
+		this.body.push(new Tile(h.x, h.y, KEYS.NULL));
 		while (this.body.length > tailLength) {
 			this.body.shift();
 		}

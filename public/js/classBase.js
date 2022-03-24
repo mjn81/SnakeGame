@@ -10,9 +10,9 @@ var KEYS;
     KEYS["DOWN"] = "ArrowDown";
     KEYS["LEFT"] = "ArrowLeft";
     KEYS["RIGHT"] = "ArrowRight";
-    KEYS["SPACE"] = "Space";
+    KEYS["NULL"] = "";
 })(KEYS || (KEYS = {}));
-let velocity = [0, 0, null], deltaTime = 0, speed = 100, score = 0, tailLength = 0, isGameOver = false;
+let velocity = [0, 0, KEYS.NULL], deltaTime = 0, speed = 100, score = 0, tailLength = 0, isGameOver = false;
 var COLORS;
 (function (COLORS) {
     COLORS["SHEAD"] = "#FFF";
@@ -64,7 +64,7 @@ class Snake {
             for (let part of this.body) {
                 ctx.fillRect(part.x * TILE_SIZE, part.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
-            this.body.push(new Tile(h.x, h.y, null));
+            this.body.push(new Tile(h.x, h.y, KEYS.NULL));
             while (this.body.length > tailLength) {
                 this.body.shift();
             }
